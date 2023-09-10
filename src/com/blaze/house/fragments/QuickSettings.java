@@ -50,22 +50,20 @@ import java.util.Locale;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.blaze.house.preferences.SystemSettingListPreference;
-
 import java.util.List;
 import java.util.ArrayList;
+
+import com.blaze.house.preferences.SystemSettingListPreference;
 
 public class QuickSettings extends SettingsPreferenceFragment implements
         OnPreferenceChangeListener {
 
-    private static final String QS_PAGE_TRANSITIONS = "custom_transitions_page_tile";
     private static final String KEY_QS_PANEL_STYLE = "qs_panel_style";
 
     private Handler mHandler;
     private IOverlayManager mOverlayManager;
     private IOverlayManager mOverlayService;
     private SystemSettingListPreference mQsStyle;
-    private SystemSettingListPreference mPageTransitions;
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -81,14 +79,6 @@ public class QuickSettings extends SettingsPreferenceFragment implements
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
 
-        mPageTransitions = (SystemSettingListPreference) findPreference(QS_PAGE_TRANSITIONS);
-        mPageTransitions.setOnPreferenceChangeListener(this);
-        int customTransitions = Settings.System.getIntForUser(resolver,
-                Settings.System.CUSTOM_TRANSITIONS_KEY,
-                0, UserHandle.USER_CURRENT);
-        mPageTransitions.setValue(String.valueOf(customTransitions));
-        mPageTransitions.setSummary(mPageTransitions.getEntry());
-        
         mOverlayService = IOverlayManager.Stub
         .asInterface(ServiceManager.getService(Context.OVERLAY_SERVICE));
 
@@ -121,21 +111,12 @@ public class QuickSettings extends SettingsPreferenceFragment implements
     }
 
     @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        ContentResolver resolver = getActivity().getContentResolver();
-            if (preference.equals(mPageTransitions)) {
-            int customTransitions = Integer.parseInt(((String) newValue).toString());
-            Settings.System.putIntForUser(resolver,
-                    Settings.System.CUSTOM_TRANSITIONS_KEY, customTransitions, UserHandle.USER_CURRENT);
-            int index = mPageTransitions.findIndexOfValue((String) newValue);
-            mPageTransitions.setSummary(
-                    mPageTransitions.getEntries()[index]);
-            return true;
-              } else if (preference == mQsStyle) {
+    public boolean onPreferenceChange(Preference preference, Object newValue) {       
+        if (preference == mQsStyle) {
                mCustomSettingsObserver.observe();
             return true;
           } 
-        return false;
+           return false;
     }
     
     public static void reset(Context mContext) {
